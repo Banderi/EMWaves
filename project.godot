@@ -86,6 +86,7 @@ Masks="*res://Antimony/scripts/singletons/Masks.gd"
 Inventory="*res://Antimony/scripts/singletons/Inventory.gd"
 RPC="*res://Antimony/scripts/singletons/RPC.gd"
 Debug="*res://Antimony/scripts/singletons/Debug.gd"
+Gdnative="*res://scripts/gdnative.gd"
 
 [display]
 
