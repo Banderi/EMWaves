@@ -7,7 +7,7 @@ reloadable=true
 
 [entry]
 
-Windows.64="res://gdnative/windows/libwaves.dll"
+Windows.64="res://gdnative_cpp/windows/libwavescpp.dll"
 
 [dependencies]
 

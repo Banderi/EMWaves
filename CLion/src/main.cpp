@@ -234,6 +234,25 @@ godot_variant get_particle_test(godot_object *p_instance, void *p_method_data, v
 
 godot_variant load_electron_state(godot_object *p_instance, void *p_method_data, void *p_globals, int p_num_args, godot_variant **p_args) {
     godot_array arr = constr_godot_array(p_args, p_num_args);
+
+
+
+
+
+    return to_variant_unsafe(arr);
+}
+
+
+
+godot_variant get_E_at_point(godot_object *p_instance, void *p_method_data, void *p_globals, int p_num_args, godot_variant **p_args) {
+    godot_array arr = constr_godot_array(p_args, p_num_args);
+
+    godot_variant p_x = get_param(0, p_args, p_num_args);
+
+//    auto E_vector =
+
+
+
     return to_variant_unsafe(arr);
 }
 
@@ -250,4 +269,5 @@ void init_nativescript_methods() {
     register_method("get_particle_test", &get_particle_test);
 
     register_method("load_electron_state", &load_electron_state);
+    register_method("get_E_at_point", &get_E_at_point);
 }
