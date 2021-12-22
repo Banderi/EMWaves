@@ -3,11 +3,11 @@ project(EMWaves)
 
 set(CMAKE_CXX_STANDARD 14)
 include_directories(${PROJECT_SOURCE_DIR}/godot-headers)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../gdnative/windows)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../Godot/gdnative/windows)
 
 
 set(SOURCE_FILES
-#        ${PROJECT_SOURCE_DIR}/src/NN/neural_network.cpp
+        ${PROJECT_SOURCE_DIR}/src/WVS/fields.cpp
         ${PROJECT_SOURCE_DIR}/src/main.cpp
         ${PROJECT_SOURCE_DIR}/src/simple.c
         )

@@ -13,7 +13,7 @@ func calc_at_point(point, cache_id):
 func _process(delta):
 
 	var P = Vector3(0,2,0)
-	var fs = 50
+	var fs = 20
 	var ff = fs/2 - 0.5*(1-fs%2)
 	var fx = 1.0
 
