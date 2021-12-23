@@ -13,7 +13,8 @@ include_directories(
         ${GDN_ROOT}/include/godot-headers
 )
 set(SOURCE_FILES
-        ${GDN_ROOT}/src/init.cpp
+#        ${GDN_ROOT}/src/init.cpp
+        ${GDN_ROOT}/src/init_2.cpp
 )
 
 add_library(wavescpp SHARED ${SOURCE_FILES})
