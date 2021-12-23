@@ -3,6 +3,7 @@ project(CLionCPP)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../Godot/gdnative_cpp/windows)
 set(GDN_ROOT ${PROJECT_SOURCE_DIR}/gdn_3.x)
 
 include_directories(
@@ -10,13 +11,8 @@ include_directories(
         ${GDN_ROOT}/include/core
         ${GDN_ROOT}/include/gen
         ${GDN_ROOT}/include/godot-headers
-#        ${PROJECT_SOURCE_DIR}/lib
 )
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../Godot/gdnative_cpp/windows)
-
 set(SOURCE_FILES
-#        ${GDN_ROOT}/src/WVS/fields.cpp
-#        ${GDN_ROOT}/src/main.cpp
         ${GDN_ROOT}/src/init.cpp
 )
 

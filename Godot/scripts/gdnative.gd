@@ -1,13 +1,15 @@
 extends Node
 
-#const gdns = preload("res://gdnative_cpp/wavescpp.gdns")
-#onready var gdns = preload("res://gdnative_cpp/wavescpp.gdns")
-#onready var gdns = preload("res://gdnative/waves.gdns")
 var GDNATIVE = null
 
+var USE_CPP = true
+
 func init():
-#	var gdns = load("res://gdnative_cpp/wavescpp.gdns")
-	var gdns = load("res://gdnative/waves.gdns")
+	var gdns = null
+	if USE_CPP:
+		gdns = load("res://gdnative_cpp/wavescpp.gdns")
+	else:
+		gdns = load("res://gdnative/waves.gdns")
 
 	# check if the loaded native script is valid
 	print("GDNS >> Native Script: ", gdns)
@@ -24,13 +26,14 @@ func init():
 	print("GDNS >> Reference: ", GDNATIVE)
 	if GDNATIVE == null || !is_instance_valid(GDNATIVE):
 		return
-	print("GDNS >> Reference name ", GDNATIVE.name)
-	if GDNATIVE.name != "SimpleClass":
-		return
-	print("GDNS >> Reference value ", GDNATIVE.value)
-	if GDNATIVE.value != 0:
-		return
 
+
+#	print("GDNS >> Reference name ", GDNATIVE.name)
+#	if GDNATIVE.name != "SimpleClass":
+#		return
+#	print("GDNS >> Reference value ", GDNATIVE.value)
+#	if GDNATIVE.value != 0:
+#		return
 #    print("GDNS >> Call method ", ref.method(1))
 #    if ref.method(1) != 1:
 #        return
