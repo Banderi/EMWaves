@@ -119,4 +119,3 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0 )
 
 [node name="Electron2" parent="navigation/navmesh/items/FIELDS" instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.89884, 2, -6.0013 )
-visible = false

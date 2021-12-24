@@ -2,7 +2,7 @@ extends Node
 
 var GDNATIVE = null
 
-var USE_CPP = true
+var USE_CPP = false
 
 func init():
 	var gdns = null
@@ -51,4 +51,7 @@ func _ready():
 	init()
 #	print(GDNATIVE.get_heartbeat("test"))
 #	print(GDNATIVE.get_particle_test())
+#	print(GDNATIVE.load_electron_state(0, Vector3(25,1,48)))
+#	print(Vector3(1, 2, 3))
+#	print(Vector3(1, 2, 3) == GDNATIVE.get_particle_test())
 	pass # Replace with function body.

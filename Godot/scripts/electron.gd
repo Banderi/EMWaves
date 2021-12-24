@@ -1,5 +1,7 @@
 extends Spatial
 
+var ELECTRON_ID = null
+
 var speed = 10.0
 var intensity = Vector3(0, 0.1, 0)
 var velocity = Vector3(0, -1, 0) # I guess we're going with this!
@@ -10,10 +12,13 @@ var velocity_history = [
 ]
 
 func store_velocity():
-	var max_history = 6000
-	velocity_history.push_back([life, translation, velocity])
-	while velocity_history.size() > max_history:
-		velocity_history.pop_front()
+#	var max_history = 6000
+#	velocity_history.push_back([life, translation, velocity])
+#	while velocity_history.size() > max_history:
+#		velocity_history.pop_front()
+	var r = Gdnative.GDNATIVE.load_electron_state(ELECTRON_ID, life, translation)
+#	print(r)
+	pass
 
 func SPEED_OF_LIGHT():
 	return 20.0
@@ -406,7 +411,15 @@ func _process(delta):
 #				var VEC = translation + Vector3(x, y, z)
 #				UI.vector(VEC, velocity * 20, Color(1,0,0,1))
 
+	if !visible:
+		return
+#	var E = Gdnative.GDNATIVE.get_electron_state(ELECTRON_ID, life)
+#	var E = Gdnative.GDNATIVE.get_E_at_point(Vector3(), SPEED_OF_LIGHT())
+#	print(E)
+#	UI.vector(Vector3(), E * 15, Color(1,0,0,40 * E.length_squared()), true)
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	get_parent().sources.push_back(self)
+	ELECTRON_ID = get_parent().add_as_source(self)
+#	get_parent().ask_for_my_id(self)
 	pass # Replace with function body.
