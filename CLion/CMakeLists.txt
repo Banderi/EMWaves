@@ -11,6 +11,7 @@ include_directories(
 set(SOURCE_FILES
         ${PROJECT_SOURCE_DIR}/src/WVS/fields.cpp
         ${PROJECT_SOURCE_DIR}/src/math/mathc.c
+#        ${PROJECT_SOURCE_DIR}/src/mapc/map.c
         ${PROJECT_SOURCE_DIR}/src/main.cpp
         ${PROJECT_SOURCE_DIR}/src/simple.c
 )

@@ -326,6 +326,15 @@ struct Vector3
     inline struct Vector3& operator/=(const double rhs);
     inline struct Vector3& operator+=(const Vector3 rhs);
     inline struct Vector3& operator-=(const Vector3 rhs);
+
+    inline bool operator<=(const double rhs) const;
+    inline bool operator>=(const double rhs) const;
+    inline bool operator<=(const Vector3 rhs) const;
+    inline bool operator>=(const Vector3 rhs) const;
+    inline bool operator<(const double rhs) const;
+    inline bool operator>(const double rhs) const;
+    inline bool operator<(const Vector3 rhs) const;
+    inline bool operator>(const Vector3 rhs) const;
 };
 
 inline Vector3 operator-(Vector3 rhs);
@@ -342,6 +351,10 @@ inline Vector3 operator-(Vector3 lhs, const Vector3 rhs);
 inline bool operator==(const Vector3 lhs, const Vector3 rhs);
 inline bool operator!=(const Vector3 lhs, const Vector3 rhs);
 
+//inline Vector3 operator<=(const double rhs);
+//inline Vector3 operator>=(const double rhs);
+//inline Vector3 operator<=(const Vector3 rhs);
+//inline Vector3 operator>=(const Vector3 rhs);
 
 
 /*******************************************************************************
@@ -620,6 +633,39 @@ struct Vector3& Vector3::operator-=(const Vector3 rhs)
     Y -= rhs.Y;
     Z -= rhs.Z;
     return *this;
+}
+
+bool Vector3::operator<=(const double rhs) const
+{
+    return (Magnitude(*this) <= (const double)rhs);
+}
+bool Vector3::operator>=(const double rhs) const
+{
+    return (Magnitude(*this) >= rhs);
+}
+bool Vector3::operator<=(const Vector3 rhs) const
+{
+    return (Magnitude(*this) <= Magnitude(rhs));
+}
+bool Vector3::operator>=(const Vector3 rhs) const
+{
+    return (Magnitude(*this) >= Magnitude(rhs));
+}
+bool Vector3::operator<(const double rhs) const
+{
+    return (Magnitude(*this) < (const double)rhs);
+}
+bool Vector3::operator>(const double rhs) const
+{
+    return (Magnitude(*this) > rhs);
+}
+bool Vector3::operator<(const Vector3 rhs) const
+{
+    return (Magnitude(*this) < Magnitude(rhs));
+}
+bool Vector3::operator>(const Vector3 rhs) const
+{
+    return (Magnitude(*this) > Magnitude(rhs));
 }
 
 Vector3 operator-(Vector3 rhs) { return rhs * -1; }

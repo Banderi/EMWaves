@@ -10,14 +10,14 @@
 #define CEXTERN
 #endif
 
-CEXTERN const char *p_class_name;
+extern const char *p_class_name;
 
 // GDNative supports a large collection of functions for calling back
 // into the main Godot executable. In order for your module to have
 // access to these functions, GDNative provides your application with
 // a struct containing pointers to all these functions.
-CEXTERN const godot_gdnative_core_api_struct *API;
-CEXTERN const godot_gdnative_ext_nativescript_api_struct *nativescript_API;
+extern const godot_gdnative_core_api_struct *API;
+extern const godot_gdnative_ext_nativescript_api_struct *nativescript_API;
 
 CEXTERN void *init_globals();
 CEXTERN void init_nativescript_methods();

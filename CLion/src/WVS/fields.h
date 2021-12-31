@@ -30,6 +30,9 @@ private:
 
     void push_history();
 
+
+    void check_closest_match(int i, Vector3 point, double signal_propagation_speed, double current_time, particle_state **closest_matching_state, double *closest_matching_signal_stamp, int *closest_matching_id);
+
 public:
     void move(double newlifestamp, Vector3 newpos);
 //    void accelerate(float dx, float dy, float dz);
