@@ -92,14 +92,13 @@ particle_state particle::get_history_from_front(int i) {
     return get_history_absolute(i);
 }
 void particle::move(double newlifestamp, Vector3 newpos) {
-    if (state.lifestamp == -1)
-        state.lifestamp = 0.0;
-    push_history();
-    state.velocity = newpos - state.position;
+    if (state.lifestamp != -1) {
+        state.velocity = newpos - state.position; // only update velocity for states **after** the initial one
+    }
     state.position = newpos;
     state.lifestamp = newlifestamp;
+    push_history();
 }
-
 
 bool particle::check_closest_match(int i, bool absolute, Vector3 point, double signal_propagation_speed, double current_time, particle_state **closest_matching_state, double *closest_matching_signal_stamp, int *closest_matching_id) {
     particle_state ss;
@@ -150,13 +149,13 @@ particle_state particle::get_state(double life) {
 }
 particle_state particle::get_signal_impingement(Vector3 point, double signal_propagation_speed) {
     double closest_matching_signal_stamp = 100;
-    particle_state dummy_state = {0.0, Vector3(0,-0.01,0), Vector3(0,-0.01,0), Vector3(0,-0.01,0)};
+    particle_state dummy_state;
     particle_state *closest_matching_state = &dummy_state; //&history_A[0];
     int closest_matching_id;
 
     double current_time = get_state().lifestamp;
 
-    int METHOD = 8;
+    int METHOD = 0;
     switch (METHOD) {
         case 0: {
             for (int i = 0; i < MAX_STATE_HISTORY; ++i) {
@@ -251,9 +250,17 @@ particle_state particle::get_signal_impingement(Vector3 point, double signal_pro
             break;
         }
         case 7: {
-            for (int i = 0; i < MAX_STATE_HISTORY; ++i) {
-                check_closest_match(i, false, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
-            }
+//            for (int i = 0; i < MAX_STATE_HISTORY; ++i) {
+//                check_closest_match(i, false, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
+//            }
+
+            bool r = true;
+            int i = 0;
+            do {
+                r = check_closest_match(0 + i, false, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
+                i++;
+            } while (r);
+
             break;
         }
         case 8: {
@@ -292,7 +299,12 @@ particle_state particle::get_signal_impingement(Vector3 point, double signal_pro
 ////////
 
 Vector3 electron::get_E_impingement(Vector3 point, double signal_propagation_speed) {
-    return get_signal_impingement(point, signal_propagation_speed).velocity;
+    auto ss = get_signal_impingement(point, signal_propagation_speed);
+    auto m = Vector3::Magnitude(ss.velocity);
+    if (m > 0.0) {
+        int a = 35;
+    }
+    return ss.velocity;
 }
 
 ////////

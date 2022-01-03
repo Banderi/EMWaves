@@ -285,15 +285,17 @@ godot_variant get_particle_test(godot_object *p_instance, void *p_method_data, v
 godot_variant load_electron_state(godot_object *p_instance, void *p_method_data, void *p_globals, int p_num_args, godot_variant **p_args) {
     godot_variant g_electron_id = get_param(0, p_args, p_num_args);
     godot_variant g_electron_life = get_param(1, p_args, p_num_args);
-    godot_variant g_electron_state = get_param(2, p_args, p_num_args);
+    godot_variant g_electron_pos = get_param(2, p_args, p_num_args);
+    godot_variant g_electron_vel = get_param(2, p_args, p_num_args);
 
     int electron_id = to_int(g_electron_id);
     double electron_life = to_double(g_electron_life);
-    Vector3 electron_state = to_Vector3(g_electron_state);
+    Vector3 electron_position = to_Vector3(g_electron_pos);
+    Vector3 electron_velocity = to_Vector3(g_electron_vel);
 
     if (electron_id < MAX_PARTICLES_IN_FIELD) {
 //        Fields.g_electrons[electron_id].wake(electron_id);
-        Fields.g_electrons[electron_id].move(electron_life, electron_state);
+        Fields.g_electrons[electron_id].move(electron_life, electron_position);
     }
 
     Vector3 safety_check_return = Fields.g_electrons[electron_id].get_position();
