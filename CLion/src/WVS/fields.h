@@ -13,7 +13,7 @@
 #define MAX_STATE_HISTORY_CHUNK MAX_STATE_HISTORY / 2
 
 typedef struct particle_state {
-    double lifestamp = 0;
+    double lifestamp = -1;
     Vector3 position = Vector3(0,0,0);
     Vector3 velocity = Vector3(0,0,0);
     Vector3 acceleration = Vector3(0,0,0);
@@ -26,12 +26,14 @@ private:
 
     particle_state history_A[MAX_STATE_HISTORY_CHUNK];
     particle_state history_B[MAX_STATE_HISTORY_CHUNK];
-    int history_count = 0;
+    int history_last_index = 0;
 
     void push_history();
+    particle_state get_history_absolute(int i);
+    particle_state get_history_from_front(int i);
 
 
-    void check_closest_match(int i, Vector3 point, double signal_propagation_speed, double current_time, particle_state **closest_matching_state, double *closest_matching_signal_stamp, int *closest_matching_id);
+    bool check_closest_match(int i, bool absolute, Vector3 point, double signal_propagation_speed, double current_time, particle_state **closest_matching_state, double *closest_matching_signal_stamp, int *closest_matching_id);
 
 public:
     void move(double newlifestamp, Vector3 newpos);

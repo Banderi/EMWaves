@@ -56,17 +56,44 @@ void particle::push_history() {
     awake = true; // TODO
 
     // switch back and forth from chunk A to chunk B
-    if (history_count < MAX_STATE_HISTORY_CHUNK)
-        history_A[history_count] = state;
-    else if (history_count < MAX_STATE_HISTORY)
-        history_B[history_count - MAX_STATE_HISTORY_CHUNK] = state;
+    if (history_last_index < MAX_STATE_HISTORY_CHUNK)
+        history_A[history_last_index] = state;
+    else if (history_last_index < MAX_STATE_HISTORY)
+        history_B[history_last_index - MAX_STATE_HISTORY_CHUNK] = state;
 
     // advance counter!
-    history_count++;
-    if (history_count >= MAX_STATE_HISTORY)
-        history_count -= MAX_STATE_HISTORY;
+    history_last_index++;
+    if (history_last_index >= MAX_STATE_HISTORY)
+        history_last_index -= MAX_STATE_HISTORY;
+}
+particle_state particle::get_history_absolute(int i) {
+    particle_state ss;
+
+    // clamp absolute index within array range
+    while (i < 0)
+        i += MAX_STATE_HISTORY;
+    while (i > MAX_STATE_HISTORY)
+        i -= MAX_STATE_HISTORY;
+
+    // convert absolute index to relative (chunk) index and return appropriate field
+    if (i < MAX_STATE_HISTORY_CHUNK)
+        return history_A[i];
+    else
+        return history_B[i - MAX_STATE_HISTORY_CHUNK];
+}
+particle_state particle::get_history_from_front(int i) {
+    // clamp absolute index within array range
+    if (i < 0)
+        i = 0;
+    if (i >= MAX_STATE_HISTORY)
+        i = MAX_STATE_HISTORY - 1;
+
+    i = history_last_index - 1 - i;
+    return get_history_absolute(i);
 }
 void particle::move(double newlifestamp, Vector3 newpos) {
+    if (state.lifestamp == -1)
+        state.lifestamp = 0.0;
     push_history();
     state.velocity = newpos - state.position;
     state.position = newpos;
@@ -74,25 +101,27 @@ void particle::move(double newlifestamp, Vector3 newpos) {
 }
 
 
-void particle::check_closest_match(int i, Vector3 point, double signal_propagation_speed, double current_time, particle_state **closest_matching_state, double *closest_matching_signal_stamp, int *closest_matching_id) {
-    particle_state *ss;
-    if (i < MAX_STATE_HISTORY_CHUNK)
-        ss = &history_A[i];
-    else if (i < MAX_STATE_HISTORY)
-        ss = &history_B[i - MAX_STATE_HISTORY_CHUNK];
+bool particle::check_closest_match(int i, bool absolute, Vector3 point, double signal_propagation_speed, double current_time, particle_state **closest_matching_state, double *closest_matching_signal_stamp, int *closest_matching_id) {
+    particle_state ss;
+    if (absolute)
+        ss = get_history_absolute(i);
     else
-        return; // *closest_matching_state; // this should NEVER happen????
+        ss = get_history_from_front(i);
+    if (ss.lifestamp == -1) // invalid state!
+        return false;
 
-    double time_diff = abs(current_time - ss->lifestamp);
+    double time_diff = abs(current_time - ss.lifestamp);
     double ideal_ssdiff = signal_propagation_speed * time_diff;
-    double actual_ssdiff = Vector3::Distance(ss->position, point);
+    double actual_ssdiff = Vector3::Distance(ss.position, point);
 
     double matching_signal_stamp_diff = abs(actual_ssdiff - ideal_ssdiff);
     if (matching_signal_stamp_diff < *closest_matching_signal_stamp) {
         *closest_matching_signal_stamp = matching_signal_stamp_diff;
-        *closest_matching_state = ss;
+        **closest_matching_state = ss;
         *closest_matching_id = i;
+        return true;
     }
+    return false;
 }
 
 particle_state particle::get_state() {
@@ -120,17 +149,18 @@ particle_state particle::get_state(double life) {
     return *closest_matching_state;
 }
 particle_state particle::get_signal_impingement(Vector3 point, double signal_propagation_speed) {
-    double closest_matching_signal_stamp = 10;
-    particle_state *closest_matching_state = &history_A[0];
+    double closest_matching_signal_stamp = 100;
+    particle_state dummy_state = {0.0, Vector3(0,-0.01,0), Vector3(0,-0.01,0), Vector3(0,-0.01,0)};
+    particle_state *closest_matching_state = &dummy_state; //&history_A[0];
     int closest_matching_id;
 
     double current_time = get_state().lifestamp;
 
-    int METHOD = 7;
+    int METHOD = 8;
     switch (METHOD) {
         case 0: {
             for (int i = 0; i < MAX_STATE_HISTORY; ++i) {
-                check_closest_match(i, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
+                check_closest_match(i, true, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
             }
             break;
         }
@@ -221,20 +251,38 @@ particle_state particle::get_signal_impingement(Vector3 point, double signal_pro
             break;
         }
         case 7: {
-            const int MAX_CHECKS = 25;
-            const int cached_index = check_for_cache(point);
-            const int START_IDX = fmax(cached_index, cached_index - MAX_CHECKS);
-            const int END_IDX = fmin(START_IDX + MAX_CHECKS, MAX_STATE_HISTORY);
-
-            if (cached_index != 0) {
-                int a = 35;
+            for (int i = 0; i < MAX_STATE_HISTORY; ++i) {
+                check_closest_match(i, false, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
             }
-//            closest_matching_state = &history_A[START_IDX];
-//            int closest_matching_id = START_IDX;
+            break;
+        }
+        case 8: {
+            const int MAX_CHECKS = 20;
+            const int MAX_CHECKS_HALF = (MAX_CHECKS / 2);
+//            const int cached_index_offset = check_for_cache(point);
+//            const int START_IDX = fmax(history_last_index - 1 + cached_index_offset, 0);
+            const int CACHED_IDX = check_for_cache(point);
+            const int START_IDX = fmax(CACHED_IDX - MAX_CHECKS_HALF, 0);
+            const int END_IDX = fmin(CACHED_IDX + MAX_CHECKS_HALF, MAX_STATE_HISTORY - 1);
 
+//            bool r = true;
+//            int i = 0;
+//            do {
+//                r = check_closest_match(0 + i, false, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
+//                i++;
+//            } while (r);
             for (int i = START_IDX; i < END_IDX; ++i) {
-                check_closest_match(i, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
+                check_closest_match(i, false, point, signal_propagation_speed, current_time, &closest_matching_state, &closest_matching_signal_stamp, &closest_matching_id);
             }
+
+            const int CLOSEST_OFFSET = closest_matching_id;
+//            if (CLOSEST_OFFSET != 0) {
+//                int a = 35;
+//            }
+//            if (CLOSEST_OFFSET != CACHED_IDX) {
+//                int a = 35;
+//            }
+            record_probe_in_cache(point, CLOSEST_OFFSET);
             break;
         }
     }
