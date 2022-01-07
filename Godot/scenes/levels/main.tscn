@@ -6,10 +6,12 @@
 [sub_resource type="GDScript" id=1]
 script/source = "extends Spatial
 
-signal level_ready
-
 func start():
 	UI.init(\"rts\", Game.gm.rts)
+
+	Game.camera_initial_zoom = 5.0
+	Game.camera_zoom_min = 2
+	Game.camera_zoom_max = 10
 
 #	Game.air_drag = 0.1
 #	Game.air_speed_coeff = 0.1
@@ -37,7 +39,12 @@ func start():
 #	Game.spawn_player()
 	UI.h_playername.text = Game.get_playername()
 
-	emit_signal(\"level_ready\")
+	Game.emit_signal(\"level_ready\")
+
+func change_display(d):
+	$navigation/navmesh/items/FIELDS.DISPLAY = d
+func toggle_field_component(c):
+	$navigation/navmesh/items/FIELDS.COMPONENT ^= c
 "
 
 [sub_resource type="CubeMesh" id=2]
@@ -115,7 +122,7 @@ __meta__ = {
 script = ExtResource( 2 )
 
 [node name="Electron" parent="navigation/navmesh/items/FIELDS" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0 )
 
 [node name="Electron2" parent="navigation/navmesh/items/FIELDS" instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.89884, 2, -6.0013 )
+visible = false

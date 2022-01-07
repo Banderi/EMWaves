@@ -1,15 +1,19 @@
 #ifndef CLION_FIELDS_H
 #define CLION_FIELDS_H
 
-//#include <math/mathc.h>
-//#include <mathCPP/mathcpp.h>
 #include "mathCPP/Vector2.hpp"
 #include "mathCPP/Vector3.hpp"
 
 // PARTICLE FIELDS!
 
+enum {
+    FIELD_ELECTRIC = 0,
+    FIELD_MAGNETIC = 1,
+    FIELD_ENERGY_DENSITY = 2,
+};
+
 #define MAX_PARTICLES_IN_FIELD 100
-#define MAX_STATE_HISTORY 200
+#define MAX_STATE_HISTORY 2000
 #define MAX_STATE_HISTORY_CHUNK MAX_STATE_HISTORY / 2
 
 typedef struct particle_state {
@@ -62,6 +66,7 @@ class electron : public particle {
 public:
     Vector3 get_E_impingement(Vector3 point, double signal_propagation_speed);
     Vector3 get_B_impingement(Vector3 point, double signal_propagation_speed);
+    double get_u_density(Vector3 point, double signal_propagation_speed);
 };
 class photon : public particle {
 public:
@@ -81,7 +86,7 @@ public:
     photon g_photons[MAX_PARTICLES_IN_FIELD] = {};
     int photon_count = 0;
 
-    static Vector3 get_E_impingement(Vector3 point, double signal_propagation_speed);
+    static Vector3 get_field_impingement(Vector3 point, double signal_propagation_speed, unsigned int field_component);
 
 };
 

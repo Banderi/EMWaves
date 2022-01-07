@@ -1,9 +1,10 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://Antimony/scenes/hud/chat_msg.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Antimony/scenes/hud/hud_box.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Antimony/materials/style_label1.tres" type="StyleBox" id=3]
 [ext_resource path="res://Antimony/fonts/font_pixelated.tres" type="DynamicFont" id=4]
+[ext_resource path="res://Antimony/scenes/hud/btn1.tscn" type="PackedScene" id=5]
 [ext_resource path="res://Antimony/fonts/font_chatbox.tres" type="DynamicFont" id=14]
 [ext_resource path="res://Antimony/graphics/obj_dummy.png" type="Texture" id=15]
 [ext_resource path="res://Antimony/fonts/whitrabt.ttf" type="DynamicFontData" id=16]
@@ -59,7 +60,7 @@ func _ready():
 	UI.register_inv_hotbar_slots(7, 3)
 
 	Game.custom_cursors = true
-	Game.camera_zoom_min = 5.0
+#	Game.camera_zoom_min = 5.0
 
 func _input(event):
 	if UI.paused:
@@ -101,6 +102,21 @@ func _process(delta):
 	Debug.loginfo(\"    from:   \", Game.cmm_buffer.units)
 	Debug.loginfo(\"    to:     \", Game.cmm_buffer.target)
 	Debug.loginfo(\"    pos.:   \", Game.cmm_buffer.position)
+
+
+func _on_btn_wave_pressed():
+	Game.level.change_display(0)
+func _on_btn_plane_pressed():
+	Game.level.change_display(1)
+func _on_btn_volume_pressed():
+	Game.level.change_display(2)
+
+func _on_btn_E_pressed():
+	Game.level.toggle_field_component(1)
+func _on_btn_B_pressed():
+	Game.level.toggle_field_component(2)
+func _on_btn_u_pressed():
+	Game.level.toggle_field_component(4)
 "
 
 [sub_resource type="ShaderMaterial" id=2]
@@ -143,6 +159,56 @@ __meta__ = {
 "_edit_lock_": true,
 "_edit_use_anchors_": false
 }
+
+[node name="topleft" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="btn_wave" parent="topleft" instance=ExtResource( 5 )]
+margin_left = 31.1666
+margin_top = 21.286
+margin_right = 21.1666
+margin_bottom = -6.71399
+text = "wave"
+
+[node name="btn_plane" parent="topleft" instance=ExtResource( 5 )]
+margin_left = 168.167
+margin_top = 21.286
+margin_right = 161.167
+margin_bottom = -6.71399
+text = "plane"
+
+[node name="btn_volume" parent="topleft" instance=ExtResource( 5 )]
+margin_left = 318.167
+margin_top = 21.286
+margin_right = 316.167
+margin_bottom = -6.71399
+text = "volume"
+
+[node name="btn_E" parent="topleft" instance=ExtResource( 5 )]
+margin_left = 31.0
+margin_top = 90.0
+margin_right = 4.0
+margin_bottom = 62.0
+text = "E"
+
+[node name="btn_B" parent="topleft" instance=ExtResource( 5 )]
+margin_left = 102.734
+margin_top = 90.0
+margin_right = 75.7345
+margin_bottom = 62.0
+text = "B"
+
+[node name="btn_u" parent="topleft" instance=ExtResource( 5 )]
+margin_left = 172.581
+margin_top = 90.0
+margin_right = 145.581
+margin_bottom = 62.0
+text = "u"
 
 [node name="player" type="Control" parent="."]
 visible = false
@@ -1183,7 +1249,7 @@ __meta__ = {
 
 [node name="list" type="VBoxContainer" parent="m_chat/Panel/history/div/scroll"]
 margin_right = 375.0
-margin_bottom = 571.0
+margin_bottom = 701.0
 rect_min_size = Vector2( 375, 571 )
 mouse_filter = 2
 custom_constants/separation = 10
@@ -1276,3 +1342,10 @@ text = "test"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[connection signal="pressed" from="topleft/btn_wave" to="." method="_on_btn_wave_pressed"]
+[connection signal="pressed" from="topleft/btn_plane" to="." method="_on_btn_plane_pressed"]
+[connection signal="pressed" from="topleft/btn_volume" to="." method="_on_btn_volume_pressed"]
+[connection signal="pressed" from="topleft/btn_E" to="." method="_on_btn_E_pressed"]
+[connection signal="pressed" from="topleft/btn_B" to="." method="_on_btn_B_pressed"]
+[connection signal="pressed" from="topleft/btn_u" to="." method="_on_btn_u_pressed"]

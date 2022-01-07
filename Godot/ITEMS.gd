@@ -7,7 +7,8 @@ func init():
 	Game.db.items = {
 
 		### PROPS
-		"target": {
+		"electron": {
+			"name": "Electron",
 			"type": 999,
 			"health": 100
 		},

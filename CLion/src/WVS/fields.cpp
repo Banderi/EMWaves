@@ -52,6 +52,16 @@ void record_probe_in_cache(Vector3 point, int index) {
 
 ////
 
+void particle::move(double newlifestamp, Vector3 newpos) {
+    if (state.lifestamp != -1) {
+        double period = newlifestamp - state.lifestamp;
+        state.velocity = (newpos - state.position) / period; // only update velocity for states **after** the initial one
+    }
+    state.position = newpos;
+    state.lifestamp = newlifestamp;
+    push_history();
+}
+
 void particle::push_history() {
     awake = true; // TODO
 
@@ -91,38 +101,6 @@ particle_state particle::get_history_from_front(int i) {
     i = history_last_index - 1 - i;
     return get_history_absolute(i);
 }
-void particle::move(double newlifestamp, Vector3 newpos) {
-    if (state.lifestamp != -1) {
-        state.velocity = newpos - state.position; // only update velocity for states **after** the initial one
-    }
-    state.position = newpos;
-    state.lifestamp = newlifestamp;
-    push_history();
-}
-
-bool particle::check_closest_match(int i, bool absolute, Vector3 point, double signal_propagation_speed, double current_time, particle_state **closest_matching_state, double *closest_matching_signal_stamp, int *closest_matching_id) {
-    particle_state ss;
-    if (absolute)
-        ss = get_history_absolute(i);
-    else
-        ss = get_history_from_front(i);
-    if (ss.lifestamp == -1) // invalid state!
-        return false;
-
-    double time_diff = abs(current_time - ss.lifestamp);
-    double ideal_ssdiff = signal_propagation_speed * time_diff;
-    double actual_ssdiff = Vector3::Distance(ss.position, point);
-
-    double matching_signal_stamp_diff = abs(actual_ssdiff - ideal_ssdiff);
-    if (matching_signal_stamp_diff < *closest_matching_signal_stamp) {
-        *closest_matching_signal_stamp = matching_signal_stamp_diff;
-        **closest_matching_state = ss;
-        *closest_matching_id = i;
-        return true;
-    }
-    return false;
-}
-
 particle_state particle::get_state() {
     return state;
 }
@@ -146,6 +124,29 @@ particle_state particle::get_state(double life) {
         }
     }
     return *closest_matching_state;
+}
+
+bool particle::check_closest_match(int i, bool absolute, Vector3 point, double signal_propagation_speed, double current_time, particle_state **closest_matching_state, double *closest_matching_signal_stamp, int *closest_matching_id) {
+    particle_state ss;
+    if (absolute)
+        ss = get_history_absolute(i);
+    else
+        ss = get_history_from_front(i);
+    if (ss.lifestamp == -1) // invalid state!
+        return false;
+
+    double time_diff = abs(current_time - ss.lifestamp);
+    double ideal_ssdiff = signal_propagation_speed * time_diff;
+    double actual_ssdiff = Vector3::Distance(ss.position, point);
+
+    double matching_signal_stamp_diff = abs(actual_ssdiff - ideal_ssdiff);
+    if (matching_signal_stamp_diff < *closest_matching_signal_stamp) {
+        *closest_matching_signal_stamp = matching_signal_stamp_diff;
+        **closest_matching_state = ss;
+        *closest_matching_id = i;
+        return true;
+    }
+    return false;
 }
 particle_state particle::get_signal_impingement(Vector3 point, double signal_propagation_speed) {
     double closest_matching_signal_stamp = 100;
@@ -300,24 +301,49 @@ particle_state particle::get_signal_impingement(Vector3 point, double signal_pro
 
 Vector3 electron::get_E_impingement(Vector3 point, double signal_propagation_speed) {
     auto ss = get_signal_impingement(point, signal_propagation_speed);
-    auto m = Vector3::Magnitude(ss.velocity);
-    if (m > 0.0) {
-        int a = 35;
-    }
-    return ss.velocity;
+    Vector3 E = ss.velocity;
+    return E;
+}
+Vector3 electron::get_B_impingement(Vector3 point, double signal_propagation_speed) {
+    auto ss = get_signal_impingement(point, signal_propagation_speed);
+    Vector3 E = ss.velocity;
+    Vector3 v = Vector3::Normalized(point - ss.position) * signal_propagation_speed;
+    return Vector3::Cross(E, v);
+}
+double electron::get_u_density(Vector3 point, double signal_propagation_speed) {
+    auto ss = get_signal_impingement(point, signal_propagation_speed);
+    Vector3 E = ss.velocity;
+    double Es = Vector3::Magnitude(E);
+    return Es * Es;
 }
 
 ////////
 
 field_system Fields;
 
-Vector3 field_system::get_E_impingement(Vector3 point, double signal_propagation_speed) {
-    Vector3 E;
-    for (auto & g_electron : Fields.g_electrons)
-        if (g_electron.is_awake())
-            E += g_electron.get_E_impingement(point, signal_propagation_speed);
-//    for (int e = 0; e < MAX_PARTICLES_IN_FIELD; ++e)
-//        if (Fields.g_electrons[e].is_awake())
-//            E += Fields.g_electrons[e].get_E_impingement(point, signal_propagation_speed);
-    return E;
+Vector3 field_system::get_field_impingement(Vector3 point, double signal_propagation_speed, unsigned int field_component) {
+    Vector3 F;
+
+    switch (field_component) {
+        case FIELD_ELECTRIC:
+            for (auto & g_electron : Fields.g_electrons)
+                if (g_electron.is_awake())
+                    F += g_electron.get_E_impingement(point, signal_propagation_speed);
+            // TODO: photons
+            break;
+        case FIELD_MAGNETIC:
+            for (auto & g_electron : Fields.g_electrons)
+                if (g_electron.is_awake())
+                    F += g_electron.get_B_impingement(point, signal_propagation_speed);
+            // TODO: photons
+            break;
+        case FIELD_ENERGY_DENSITY:
+            for (auto & g_electron : Fields.g_electrons)
+                if (g_electron.is_awake())
+                    F += Vector3(0, g_electron.get_u_density(point, signal_propagation_speed), 0);
+            // TODO: photons
+            break;
+    }
+
+    return F;
 }

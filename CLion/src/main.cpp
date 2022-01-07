@@ -293,10 +293,8 @@ godot_variant load_electron_state(godot_object *p_instance, void *p_method_data,
     Vector3 electron_position = to_Vector3(g_electron_pos);
     Vector3 electron_velocity = to_Vector3(g_electron_vel);
 
-    if (electron_id < MAX_PARTICLES_IN_FIELD) {
-//        Fields.g_electrons[electron_id].wake(electron_id);
+    if (electron_id < MAX_PARTICLES_IN_FIELD)
         Fields.g_electrons[electron_id].move(electron_life, electron_position);
-    }
 
     Vector3 safety_check_return = Fields.g_electrons[electron_id].get_position();
     return to_variant(electron_life);
@@ -319,16 +317,17 @@ godot_variant get_electron_state(godot_object *p_instance, void *p_method_data, 
     return to_variant(to_vector3(state.velocity));
 }
 
-godot_variant get_E_at_point(godot_object *p_instance, void *p_method_data, void *p_globals, int p_num_args, godot_variant **p_args) {
+godot_variant get_field_at_point(godot_object *p_instance, void *p_method_data, void *p_globals, int p_num_args, godot_variant **p_args) {
     godot_variant g_probe_point = get_param(0, p_args, p_num_args);
     godot_variant g_speed_of_light = get_param(1, p_args, p_num_args);
+    godot_variant g_field_component = get_param(2, p_args, p_num_args);
 
     Vector3 probe_point = to_Vector3(g_probe_point);
     double speed_of_light = to_double(g_speed_of_light);
+    unsigned int field_component = to_int(g_field_component);
 
-    Vector3 E = Fields.get_E_impingement(probe_point, speed_of_light);
-
-    return to_variant(to_vector3(E));
+    Vector3 field_value = field_system::get_field_impingement(probe_point, speed_of_light, field_component);
+    return to_variant(to_vector3(field_value));
 }
 
 
@@ -346,5 +345,5 @@ void init_nativescript_methods() {
     register_method("load_electron_state", &load_electron_state);
     register_method("get_electron_state", &get_electron_state);
 
-    register_method("get_E_at_point", &get_E_at_point);
+    register_method("get_field_at_point", &get_field_at_point);
 }
