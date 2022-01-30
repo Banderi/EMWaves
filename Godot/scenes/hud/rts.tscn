@@ -1249,7 +1249,7 @@ __meta__ = {
 
 [node name="list" type="VBoxContainer" parent="m_chat/Panel/history/div/scroll"]
 margin_right = 375.0
-margin_bottom = 701.0
+margin_bottom = 571.0
 rect_min_size = Vector2( 375, 571 )
 mouse_filter = 2
 custom_constants/separation = 10
